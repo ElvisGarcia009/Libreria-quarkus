@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class UsuarioRepository implements PanacheMongoRepository<Usuario> {
 
-    public Usuario buscarPorUsername(String username)
+    public Usuario findByUsername(String username)
     {
         return find("username", username).firstResult();
     }
