@@ -1,9 +1,9 @@
 package com.libros.service;
 
 import com.libros.dto.*;
-import com.libros.entity.Libro;
+import com.libros.exception.MalRequestException;
+import com.libros.exception.LibroNoEncontradoException;
 import com.libros.repository.LibroRepository;
-import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.bson.types.ObjectId;
@@ -33,6 +33,11 @@ public class LibrosService {
 
     public LibroResponseDTO getLibroById(String id)
     {
-        return LibroResponseDTO.TurnIntoDTO(_libroRepository.findById(new ObjectId(id)));
+        var reachTheBook = _libroRepository.findById(new ObjectId(id));
+
+        if (reachTheBook == null)
+            throw new LibroNoEncontradoException();
+
+        return LibroResponseDTO.TurnIntoDTO(reachTheBook);
     }
 }

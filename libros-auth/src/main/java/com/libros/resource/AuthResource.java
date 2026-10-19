@@ -2,6 +2,7 @@ package com.libros.resource;
 
 import com.libros.dto.TokenResponseDTO;
 import com.libros.dto.UsuarioLoginDTO;
+import com.libros.exception.CredencialesInvalidasException;
 import com.libros.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.NotAuthorizedException;
@@ -23,10 +24,6 @@ public class AuthResource {
     public TokenResponseDTO login(@Valid UsuarioLoginDTO userData)
     {
         TokenResponseDTO tokenGenerated = _authService.login(userData);
-
-        if (tokenGenerated == null)
-            throw new NotAuthorizedException("credenciales invalidas", "Bearer");
-
         return tokenGenerated;
     }
 }

@@ -4,6 +4,7 @@ import com.libros.dto.CrearLibroDTO;
 import com.libros.dto.ShowLibroDTO;
 import com.libros.dto.UpdateLibroDTO;
 import com.libros.entity.Libro;
+import com.libros.exception.LibroNoEncontradoException;
 import com.libros.repository.LibroRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.bson.types.ObjectId;
@@ -32,25 +33,26 @@ public class LibroService {
     }
 
     //PUT FUNCTION
-    public boolean updateLibro(String id, UpdateLibroDTO actualizarLibro)
+    public ShowLibroDTO updateLibro(ObjectId id, UpdateLibroDTO actualizarLibro)
     {
-        Libro libroCursor = _libroRepository.findById(new ObjectId(id));
+        Libro libroCursor = _libroRepository.findById(id);
 
         if (libroCursor == null)
-            return false;
+            throw new LibroNoEncontradoException();
 
         libroCursor.titulo = actualizarLibro.titulo;
         libroCursor.autor = actualizarLibro.autor;
         libroCursor.precio = actualizarLibro.precio;
 
-        _libroRepository.persist(libroCursor);
+        _libroRepository.update(libroCursor);
 
-        return false;
+        return ShowLibroDTO.TurnIntoDTO(libroCursor);
     }
 
     //DELETE FUNCTION
-    public boolean deleteLibro (String id)
+    public void deleteLibro (ObjectId id)
     {
-        return _libroRepository.deleteById(new ObjectId(id));
+        if (!_libroRepository.deleteById(id))
+            throw new LibroNoEncontradoException();
     }
 }

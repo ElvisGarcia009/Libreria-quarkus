@@ -3,6 +3,7 @@ package com.libros.service;
 import com.libros.dto.TokenResponseDTO;
 import com.libros.dto.UsuarioLoginDTO;
 import com.libros.entity.Usuario;
+import com.libros.exception.CredencialesInvalidasException;
 import com.libros.repository.UsuarioRepository;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,14 +28,13 @@ public class AuthService {
     public TokenResponseDTO login(UsuarioLoginDTO userData)
     {
         Usuario userFound = _usuarioRepository.findByUsername(userData.username);
-        if (userFound == null) return null;
+        if (userFound == null) throw new CredencialesInvalidasException();
 
         boolean isThePasswordRight = BcryptUtil.matches(userData.password, userFound.passwordHashed);
-        if (!isThePasswordRight) return null;
+        if (!isThePasswordRight) throw new CredencialesInvalidasException();
 
         String tokenGenerated = _tokenGenService.generarToken(userFound.username, userFound.roles);
 
         return new TokenResponseDTO(tokenGenerated, "Bearer", ttl);
     }
-
 }

@@ -2,15 +2,18 @@ package com.libros.resource;
 
 import com.libros.dto.LibroResponseDTO;
 import com.libros.dto.LibrosPaginacionDTO;
+import com.libros.exception.MalRequestException;
 import com.libros.service.LibrosService;
-import jakarta.validation.constraints.Positive;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.bson.types.ObjectId;
 
 @Path("api/v1/libro")
 @Produces({MediaType.APPLICATION_JSON})
+@RolesAllowed({"lector", "escritor"})
 public class LibroResource {
 
     private final LibrosService _librosService;
@@ -20,24 +23,23 @@ public class LibroResource {
         this._librosService = librosService;
     }
 
+
     @GET
-    public Response getAllLibros(@QueryParam("pagina") @PositiveOrZero @DefaultValue("0") int pagina,
+    public LibrosPaginacionDTO getAllLibros(@QueryParam("pagina") @PositiveOrZero @DefaultValue("0") int pagina,
                                  @QueryParam("tamanoPagina") @PositiveOrZero @DefaultValue("10") int tamanoPagina)
     {
-        LibrosPaginacionDTO allLibros = _librosService.getAllLibros(pagina, tamanoPagina);
-
-        return Response.status(200).entity(allLibros).build();
+        return _librosService.getAllLibros(pagina, tamanoPagina);
     }
+
 
     @GET
     @Path("/{id}")
     public Response getLibroById(@PathParam("id") String id)
     {
+        if (!ObjectId.isValid(id))
+            throw new MalRequestException();
+
         LibroResponseDTO libroEncontrado = _librosService.getLibroById(id);
-
-        if (libroEncontrado == null)
-            return Response.status(404).build();
-
         return Response.accepted(libroEncontrado).build();
     }
 
